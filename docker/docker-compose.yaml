@@ -1,0 +1,40 @@
+version: '3.5'
+
+networks:
+  iroha:
+    name: testnet
+    attachable: true
+
+services:
+  iroha:
+    image: hyperledger/iroha:latest
+    container_name: iroha-testnet
+    depends_on:
+      - some-postgres
+    restart: always
+    tty: true
+    environment:
+      - KEY=keys/node0
+      - IROHA_POSTGRES_HOST=some-postgres
+      - IROHA_POSTGRES_PORT=5432
+      - IROHA_POSTGRES_USER=postgres
+      - IROHA_POSTGRES_PASSWORD=mysecretpassword
+    entrypoint:
+      - /opt/iroha_data/entrypoint.sh
+    networks:
+      - iroha
+    volumes:
+      - ./iroha:/opt/iroha_data
+    # logging:
+    #   driver: none
+
+  some-postgres:
+    image: postgres:9.5
+    container_name: iroha-postgres-testnet
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=postgres
+    networks:
+      - iroha
+    logging:
+      driver: none
